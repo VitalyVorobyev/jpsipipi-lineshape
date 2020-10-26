@@ -1,12 +1,7 @@
 from typing import NamedTuple
 import numpy as np
 
-def mass_sq(lv: np.array):
-    return lv[:,0]**2 - np.sum(lv[:,1:]**2, axis=1)
-
-def mass_sq_arr(*args):
-    return mass_sq(sum(args))
-
+from kine_tools import *
 
 class Jpsi2piKEvent(NamedTuple):
     """ B+ -> Jpsi pi+ pi- K+ event """
@@ -56,3 +51,10 @@ class Jpsi2piKEvent(NamedTuple):
     @property
     def mpipimc(self):
         return np.sqrt(mass_sq_arr(self.pi1_mom_mc, self.pi2_mom_mc))
+
+    @property
+    def kpipi_helicity(self):
+        bvec = boost_vector(self.pi1_mom + self.k_mom)
+        p0_pi1 = boosted_to(self.pi1_mom, bvec)[:,1:]
+        p0_pi2 = boosted_to(self.pi2_mom, bvec)[:,1:]
+        return 0.5 * vecdot(p0_pi1, p0_pi2) / (ptot(p0_pi1) * ptot(p0_pi2))
